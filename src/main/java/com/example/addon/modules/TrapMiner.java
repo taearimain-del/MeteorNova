@@ -8,7 +8,9 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.AbstractTorchBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.ButtonBlock;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ConcretePowderBlock;
 import net.minecraft.entity.Entity;
@@ -108,9 +110,8 @@ public class TrapMiner extends Module {
     }
 
     private boolean isTrapObstacle(Block block) {
-        String key = block.getTranslationKey().toLowerCase();
-        return key.contains("button")
-                || key.contains("torch")
+        return block instanceof ButtonBlock
+                || block instanceof AbstractTorchBlock
                 || block == Blocks.COBWEB
                 || block == Blocks.TRIPWIRE;
     }

@@ -12,6 +12,7 @@ import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.mixininterface.IChatHud;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Items;
@@ -233,7 +234,7 @@ public class AutoPearlThrow extends Module {
             return;
         if (mc.player == null || mc.world == null)
             return;
-        if (p.getStatus() == 35 && p.getEntity(mc.world) == mc.player) {
+        if (p.getStatus() == EntityStatuses.USE_TOTEM_OF_UNDYING && p.getEntity(mc.world) == mc.player) {
             long now = System.currentTimeMillis();
             if (now - lastThrowAt < cooldownMs.get()) {
                 if (debug.get())

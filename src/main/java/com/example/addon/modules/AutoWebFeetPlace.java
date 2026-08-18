@@ -284,9 +284,9 @@ public class AutoWebFeetPlace extends Module {
 
         if (rotate.get()) {
             Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos), 5,
-                    () -> BlockUtils.place(pos, fir, true, 50, true, silentSwap.get()));
+                    () -> BlockUtils.place(pos, fir, true, 50, true, true, silentSwap.get()));
         } else {
-            BlockUtils.place(pos, fir, false, 50, true, silentSwap.get());
+            BlockUtils.place(pos, fir, false, 50, true, true, silentSwap.get());
         }
     }
 

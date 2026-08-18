@@ -2,7 +2,6 @@ package com.example.addon.modules;
 
 import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
-import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -14,9 +13,10 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.AbstractTorchBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.gui.screen.ingame.AnvilScreen;
+import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -72,7 +72,6 @@ public class AutoConcrete extends Module {
     private final Setting<Boolean> onlyInHole = sgGeneral.add(new BoolSetting.Builder()
             .name("only-in-hole")
             .description("Only place blocks if the target has blocks on all 4 sides.")
-            .defaultValue(false)
             .defaultValue(false)
             .build());
 
@@ -154,12 +153,6 @@ public class AutoConcrete extends Module {
         currentPillarHeight = 1 + 2 * concreteCount.get();
         concretePositions = new BlockPos[concreteCount.get()];
         cooldown = 0;
-    }
-
-    @EventHandler
-    public void onOpenScreen(OpenScreenEvent event) {
-        if (event.screen instanceof AnvilScreen)
-            event.cancel();
     }
 
     @EventHandler
@@ -265,7 +258,7 @@ public class AutoConcrete extends Module {
                     || block == Blocks.GRAVEL
                     || block == Blocks.SUSPICIOUS_SAND
                     || block == Blocks.SUSPICIOUS_GRAVEL
-                    || block.getTranslationKey().contains("concrete_powder");
+                    || block instanceof ConcretePowderBlock;
         });
 
         if (!fallingBlock.found() || (!obsidian.found() && !airPlace.get()))
@@ -476,8 +469,8 @@ public class AutoConcrete extends Module {
     }
 
     private boolean isObstacle(Block block) {
-        String key = block.getTranslationKey().toLowerCase();
-        return key.contains("button") || key.contains("torch") || block == Blocks.COBWEB || block == Blocks.TRIPWIRE
+        return block instanceof ButtonBlock || block instanceof AbstractTorchBlock
+                || block == Blocks.COBWEB || block == Blocks.TRIPWIRE
                 || block == Blocks.OBSIDIAN || block == Blocks.BEDROCK;
     }
 

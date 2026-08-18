@@ -12,8 +12,10 @@ import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.AbstractTorchBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ButtonBlock;
 import net.minecraft.block.ConcretePowderBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.FallingBlockEntity;
@@ -184,7 +186,7 @@ public class ConcreteDefense extends Module {
             if (blockType.get() == BlockType.Web) {
                 return item == Items.COBWEB;
             } else {
-                return Block.getBlockFromItem(item).getTranslationKey().toLowerCase().contains("button");
+                return Block.getBlockFromItem(item) instanceof ButtonBlock;
             }
         };
     }
@@ -194,8 +196,7 @@ public class ConcreteDefense extends Module {
             return block == Blocks.COBWEB;
         }
         // Button or similar non-collision block that breaks falling blocks
-        String key = block.getTranslationKey().toLowerCase();
-        return key.contains("button") || key.contains("torch") || block == Blocks.COBWEB;
+        return block instanceof ButtonBlock || block instanceof AbstractTorchBlock || block == Blocks.COBWEB;
     }
 
     private boolean isConcreteAbove() {

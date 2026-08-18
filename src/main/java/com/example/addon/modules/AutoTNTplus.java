@@ -2,7 +2,6 @@ package com.example.addon.modules;
 
 import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
-import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.entity.EntityUtils;
@@ -17,7 +16,6 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FireChargeItem;
 import net.minecraft.text.Text;
@@ -98,12 +96,6 @@ public class AutoTNTplus extends Module {
         currentPillarHeight = 2;
         cooldown = 0;
         igniteTicks = 0;
-    }
-
-    @EventHandler
-    public void onOpenScreen(OpenScreenEvent event) {
-        if (event.screen instanceof AnvilScreen)
-            event.cancel();
     }
 
     @EventHandler
