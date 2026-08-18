@@ -95,7 +95,7 @@ public class TrapMiner extends Module {
                     mc.player.swingHand(Hand.MAIN_HAND);
                 } else {
                     // Reset SpeedMine if configured
-                    NovaKeybindUtils.pressBoundModules(resetKey.get(), 2);
+                    NovaKeybindUtils.pressKey(resetKey.get(), 2);
 
                     mc.interactionManager.attackBlock(blockPos, Direction.UP);
                     mc.player.swingHand(Hand.MAIN_HAND);

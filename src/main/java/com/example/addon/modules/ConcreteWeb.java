@@ -109,7 +109,7 @@ public class ConcreteWeb extends Module {
     }
 
     private void pressKey() {
-        NovaKeybindUtils.pressBoundModules(webAuraKey.get(), 1);
+        NovaKeybindUtils.pressKey(webAuraKey.get(), 1);
     }
 
     private PlayerEntity findNearestTarget() {

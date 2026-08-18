@@ -1,0 +1,7 @@
+accessWidener	v2	named
+
+# Keyboard#onKey went private (and started taking a KeyInput) in 1.21.11.
+# Modules that toggle an external client's keybind - ConcreteWeb driving Mio
+# Client's Web Aura - feed it synthetic key events, which is the only way to
+# reach mods outside Meteor's own module list.
+accessible	method	net/minecraft/client/Keyboard	onKey	(JILnet/minecraft/client/input/KeyInput;)V

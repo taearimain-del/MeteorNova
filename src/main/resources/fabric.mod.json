@@ -11,6 +11,7 @@
     "repo": ""
   },
   "environment": "client",
+  "accessWidener": "meteor-nova.accesswidener",
   "entrypoints": {
     "meteor": [
       "com.example.addon.Addon"

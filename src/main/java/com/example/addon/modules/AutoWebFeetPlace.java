@@ -280,7 +280,7 @@ public class AutoWebFeetPlace extends Module {
 
     private void placeAt(BlockPos pos, FindItemResult fir) {
         // Reset SpeedMine Logic
-        NovaKeybindUtils.pressBoundModules(resetKey.get(), 2);
+        NovaKeybindUtils.pressKey(resetKey.get(), 2);
 
         if (rotate.get()) {
             Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos), 5,

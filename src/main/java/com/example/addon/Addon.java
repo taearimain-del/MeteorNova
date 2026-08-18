@@ -27,7 +27,6 @@ public class Addon extends MeteorAddon {
         Modules.get().add(new AutoPearlThrow());
         Modules.get().add(new AutoConcrete());
         Modules.get().add(new AutoMinePlus());
-        Modules.get().add(new SpawnBreaker());
         Modules.get().add(new AutoTNTplus());
         Modules.get().add(new TrapMiner());
         Modules.get().add(new ConcreteDefense());

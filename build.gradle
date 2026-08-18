@@ -6,6 +6,10 @@ plugins {
 base {
     archivesName.set(project.archives_base_name)
 }
+
+loom {
+    accessWidenerPath = file("src/main/resources/meteor-nova.accesswidener")
+}
 version = project.mod_version
 group = project.maven_group
 
