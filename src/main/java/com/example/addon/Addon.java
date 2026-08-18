@@ -20,14 +20,9 @@ public class Addon extends MeteorAddon {
         // Modules
         Modules.get().add(new AutoAccept());
         Modules.get().add(new RespawnHome());
-        Modules.get().add(new BuildModeAssistant());
         Modules.get().add(new ConcreteWeb());
-        Modules.get().add(new CommandCooldowns());
         Modules.get().add(new InventoryCleaner());
         Modules.get().add(new MiddleClickFriend());
-        Modules.get().add(new ArmorNotify());
-        Modules.get().add(new PopCounter());
-        Modules.get().add(new VisualRange());
         Modules.get().add(new AutoPearlStasis());
         Modules.get().add(new AutoPearlThrow());
         Modules.get().add(new AutoConcrete());
@@ -38,8 +33,6 @@ public class Addon extends MeteorAddon {
         Modules.get().add(new ConcreteDefense());
         Modules.get().add(new NoRenderPlus());
         Modules.get().add(new BlockESPPlus());
-        Modules.get().add(new CosmeticHider());
-        Modules.get().add(new DeathLog());
 
         // New Module (replacing AntiFeetPlace)
         Modules.get().add(new AutoWebFeetPlace());
