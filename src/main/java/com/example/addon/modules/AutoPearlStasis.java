@@ -1712,41 +1712,12 @@ public class AutoPearlStasis extends Module {
                 yaw, mc.player.getPitch(), mc.player.isOnGround(), false));
     }
 
-    private void setKeyPressed(String fieldName, boolean pressed) {
-        try {
-            Object opts = mc.options;
-            Object key = opts.getClass().getField(fieldName).get(opts);
-            key.getClass().getMethod("setPressed", boolean.class).invoke(key, pressed);
-        } catch (Throwable ignored) {
-        }
-    }
-
     private void pressSneak() {
-        try {
-            Object opts = mc.options;
-            var f = opts.getClass().getField("sneakKey");
-            Object key = f.get(opts);
-            key.getClass().getMethod("setPressed", boolean.class).invoke(key, true);
-        } catch (Throwable t) {
-            try {
-                mc.player.setSneaking(true);
-            } catch (Throwable ignored) {
-            }
-        }
+        if (mc.options != null) mc.options.sneakKey.setPressed(true);
     }
 
     private void releaseSneak() {
-        try {
-            Object opts = mc.options;
-            var f = opts.getClass().getField("sneakKey");
-            Object key = f.get(opts);
-            key.getClass().getMethod("setPressed", boolean.class).invoke(key, false);
-        } catch (Throwable t) {
-            try {
-                mc.player.setSneaking(false);
-            } catch (Throwable ignored) {
-            }
-        }
+        if (mc.options != null) mc.options.sneakKey.setPressed(false);
     }
 
     private void pressForward(int ticks) {
@@ -1762,16 +1733,18 @@ public class AutoPearlStasis extends Module {
     }
 
     private void maintainMovementKeys() {
-        setKeyPressed("forwardKey", holdForward-- > 0);
-        setKeyPressed("sprintKey", holdSprint-- > 0);
-        setKeyPressed("jumpKey", holdJump-- > 0);
+        if (mc.options == null) return;
+        mc.options.forwardKey.setPressed(holdForward-- > 0);
+        mc.options.sprintKey.setPressed(holdSprint-- > 0);
+        mc.options.jumpKey.setPressed(holdJump-- > 0);
     }
 
     private void releaseAllMoveKeys() {
         holdForward = holdSprint = holdJump = 0;
-        setKeyPressed("forwardKey", false);
-        setKeyPressed("sprintKey", false);
-        setKeyPressed("jumpKey", false);
+        if (mc.options == null) return;
+        mc.options.forwardKey.setPressed(false);
+        mc.options.sprintKey.setPressed(false);
+        mc.options.jumpKey.setPressed(false);
     }
 
     private void infoOnce(String message) {
