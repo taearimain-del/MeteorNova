@@ -205,28 +205,29 @@ public class AutoTNTplus extends Module {
     private void igniteNearbyTNT() {
         BlockPos playerPos = mc.player.getBlockPos();
 
+        // The igniter does not change while we scan, so look it up once.
+        FindItemResult item = InvUtils.findInHotbar(stack -> {
+            if (stack.getItem() instanceof FlintAndSteelItem) {
+                return useFlintAndSteel.get();
+            } else if (stack.getItem() instanceof FireChargeItem) {
+                return useFireCharge.get();
+            }
+            return false;
+        });
+
+        if (!item.found()) {
+            if (igniterCooldown == 0) {
+                warning("No igniter found!");
+                igniterCooldown = 40;
+            }
+            return;
+        }
+
         for (int x = -4; x <= 4; x++) {
             for (int y = -4; y <= 4; y++) {
                 for (int z = -4; z <= 4; z++) {
                     BlockPos pos = playerPos.add(x, y, z);
                     if (mc.world.getBlockState(pos).getBlock() instanceof net.minecraft.block.TntBlock) {
-                        FindItemResult item = InvUtils.findInHotbar(stack -> {
-                            if (stack.getItem() instanceof FlintAndSteelItem) {
-                                return useFlintAndSteel.get();
-                            } else if (stack.getItem() instanceof FireChargeItem) {
-                                return useFireCharge.get();
-                            }
-                            return false;
-                        });
-
-                        if (!item.found()) {
-                            if (igniterCooldown == 0) {
-                                warning("No igniter found!");
-                                igniterCooldown = 40;
-                            }
-                            return;
-                        }
-
                         InvUtils.swap(item.slot(), false);
                         BlockHitResult hit = new BlockHitResult(Vec3d.ofCenter(pos), Direction.UP, pos, false);
 

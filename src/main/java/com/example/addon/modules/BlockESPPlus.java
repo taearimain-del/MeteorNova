@@ -3,6 +3,7 @@ package com.example.addon.modules;
 import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
@@ -13,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +62,14 @@ public class BlockESPPlus extends Module {
             .sliderMax(16)
             .build());
 
+    // Scanning the cube every frame is tens of thousands of block lookups a
+    // frame; scan on a tick instead and let rendering just walk the results.
+    private static final int SCAN_INTERVAL = 10;
+    private int scanTicks = 0;
+    private final List<BlockPos> found1 = new ArrayList<>();
+    private final List<BlockPos> found2 = new ArrayList<>();
+    private final List<Entity> foundEntities = new ArrayList<>();
+
     public BlockESPPlus() {
         super(Addon.CATEGORY, "block-esp-plus", "ESP for Blocks and Entities with custom colors.");
     }
@@ -67,19 +77,35 @@ public class BlockESPPlus extends Module {
     @Override
     public void onActivate() {
         NovaChatUtils.sendToggleMsg("BlockESPPlus", true);
+        clearFound();
+        scanTicks = 0;
     }
 
     @Override
     public void onDeactivate() {
         NovaChatUtils.sendToggleMsg("BlockESPPlus", false);
+        clearFound();
+    }
+
+    private void clearFound() {
+        found1.clear();
+        found2.clear();
+        foundEntities.clear();
     }
 
     @EventHandler
-    private void onRender(Render3DEvent event) {
-        if (mc.player == null || mc.world == null)
+    private void onTick(TickEvent.Post event) {
+        if (mc.player == null || mc.world == null) {
+            clearFound();
             return;
+        }
 
-        // Render Blocks (Scanner)
+        if (--scanTicks > 0)
+            return;
+        scanTicks = SCAN_INTERVAL;
+
+        clearFound();
+
         int r = range.get();
         BlockPos center = mc.player.getBlockPos();
 
@@ -90,25 +116,35 @@ public class BlockESPPlus extends Module {
                     Block block = mc.world.getBlockState(pos).getBlock();
 
                     if (blocks1.get().contains(block)) {
-                        event.renderer.box(pos, color1.get(), color1.get(), ShapeMode.Lines, 0);
+                        found1.add(pos);
                     } else if (blocks2.get().contains(block)) {
-                        event.renderer.box(pos, color2.get(), color2.get(), ShapeMode.Lines, 0);
+                        found2.add(pos);
                     }
                 }
             }
         }
 
-        // Render Entities
         for (Entity entity : mc.world.getEntities()) {
-            if (entities1.get().contains(entity.getType())) {
-                // Use event.renderer.box directly on entity bounding box?
-                // Actually event.renderer.box handles world coords if we don't subtract camera
-                // pos?
-                // Renderer3D usually takes BlockPos or Box in world coords.
-                // Let's rely on event.renderer.box(Box, ...)
+            if (entities1.get().contains(entity.getType()))
+                foundEntities.add(entity);
+        }
+    }
 
+    @EventHandler
+    private void onRender(Render3DEvent event) {
+        if (mc.player == null || mc.world == null)
+            return;
+
+        for (BlockPos pos : found1)
+            event.renderer.box(pos, color1.get(), color1.get(), ShapeMode.Lines, 0);
+
+        for (BlockPos pos : found2)
+            event.renderer.box(pos, color2.get(), color2.get(), ShapeMode.Lines, 0);
+
+        // Boxes come from the entity so they follow it between scans.
+        for (Entity entity : foundEntities) {
+            if (!entity.isRemoved())
                 event.renderer.box(entity.getBoundingBox(), entColor1.get(), entColor1.get(), ShapeMode.Lines, 0);
-            }
         }
     }
 }

@@ -445,15 +445,23 @@ public class AutoConcrete extends Module {
 
     private boolean isCrystalOnSurround(PlayerEntity target) {
         BlockPos pos = target.getBlockPos();
+
+        // One spatial query covering all four surround boxes, rather than a
+        // full entity sweep per direction.
+        Box search = new Box(
+                pos.getX() - 1, pos.getY() + 0.5, pos.getZ() - 1,
+                pos.getX() + 2, pos.getY() + 3.0, pos.getZ() + 2);
+        List<EndCrystalEntity> crystals = mc.world.getEntitiesByClass(EndCrystalEntity.class, search, e -> true);
+        if (crystals.isEmpty())
+            return false;
+
         for (Direction dir : Direction.Type.HORIZONTAL) {
             BlockPos surround = pos.offset(dir);
-            for (net.minecraft.entity.Entity entity : mc.world.getEntities()) {
-                if (entity instanceof EndCrystalEntity) {
-                    if (entity.getBoundingBox().intersects(
-                            surround.toCenterPos().add(-0.5, 0, -0.5),
-                            surround.toCenterPos().add(0.5, 2.5, 0.5))) {
-                        return true;
-                    }
+            for (EndCrystalEntity crystal : crystals) {
+                if (crystal.getBoundingBox().intersects(
+                        surround.toCenterPos().add(-0.5, 0, -0.5),
+                        surround.toCenterPos().add(0.5, 2.5, 0.5))) {
+                    return true;
                 }
             }
         }
