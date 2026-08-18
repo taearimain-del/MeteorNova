@@ -43,7 +43,7 @@ public class MiddleClickFriend extends Module {
                     Friends.get().remove(Friends.get().get(player));
                     ChatUtils.info(Formatting.RED + "Removed " + name + " from friends.");
                 } else {
-                    Friends.get().add(new Friend(name));
+                    Friends.get().add(new Friend(player));
                     ChatUtils.info(Formatting.GREEN + "Added " + name + " to friends.");
                 }
             }
