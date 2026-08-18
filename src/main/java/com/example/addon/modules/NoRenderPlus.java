@@ -63,11 +63,11 @@ public class NoRenderPlus extends Module {
 
     @EventHandler
     private void onRenderBlockEntity(meteordevelopment.meteorclient.events.render.RenderBlockEntityEvent event) {
-        if (noHopper.get() && event.blockEntity instanceof net.minecraft.block.entity.HopperBlockEntity) {
+        if (noHopper.get() && event.blockEntityState.type == net.minecraft.block.entity.BlockEntityType.HOPPER) {
             event.cancel();
             return;
         }
-        if (blockEntities.get().contains(event.blockEntity.getCachedState().getBlock()))
+        if (blockEntities.get().contains(event.blockEntityState.blockState.getBlock()))
             event.cancel();
     }
 }

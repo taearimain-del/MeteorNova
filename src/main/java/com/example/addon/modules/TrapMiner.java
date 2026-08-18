@@ -2,6 +2,7 @@ package com.example.addon.modules;
 
 import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
+import com.example.addon.utils.NovaKeybindUtils;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -94,14 +95,7 @@ public class TrapMiner extends Module {
                     mc.player.swingHand(Hand.MAIN_HAND);
                 } else {
                     // Reset SpeedMine if configured
-                    int key = resetKey.get().getValue();
-                    if (key != -1) {
-                        long handle = mc.getWindow().getHandle();
-                        mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_PRESS, 0);
-                        mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_RELEASE, 0);
-                        mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_PRESS, 0);
-                        mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_RELEASE, 0);
-                    }
+                    NovaKeybindUtils.pressBoundModules(resetKey.get(), 2);
 
                     mc.interactionManager.attackBlock(blockPos, Direction.UP);
                     mc.player.swingHand(Hand.MAIN_HAND);

@@ -241,7 +241,7 @@ public class SpawnBreaker extends Module {
         }
 
         // 2. Check Arrival
-        double distSq = mc.player.getPos().lengthSquared(); // distance from 0,0
+        double distSq = mc.player.getEntityPos().lengthSquared(); // distance from 0,0
         if (distSq >= escapeDistance.get() * escapeDistance.get()) {
             NovaChatUtils.sendInfoMsg("SpawnBreaker", "Arrived at destination!");
             baritoneCommand("stop");
@@ -358,8 +358,8 @@ public class SpawnBreaker extends Module {
             if (dist < 15) {
                 NovaChatUtils.sendInfoMsg("SpawnBreaker", "Enemy! Evading...");
                 baritoneCommand("stop");
-                Vec3d enemyPos = enemy.getPos();
-                Vec3d myPos = mc.player.getPos();
+                Vec3d enemyPos = enemy.getEntityPos();
+                Vec3d myPos = mc.player.getEntityPos();
                 Vec3d awayDir = myPos.subtract(enemyPos).normalize();
                 Vec3d targetPos = myPos.add(awayDir.multiply(50));
 

@@ -562,7 +562,7 @@ public class AutoPearlThrow extends Module {
         if (nearest == null)
             return Float.NaN;
 
-        Vec3d me = mc.player.getPos(), en = nearest.getPos();
+        Vec3d me = mc.player.getEntityPos(), en = nearest.getEntityPos();
         double dx = en.x - me.x, dz = en.z - me.z;
         float yawRad = (float) Math.atan2(-dx, dz);
         return (float) Math.toDegrees(yawRad);

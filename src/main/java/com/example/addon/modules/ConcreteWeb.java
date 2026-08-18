@@ -2,6 +2,7 @@ package com.example.addon.modules;
 
 import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
+import com.example.addon.utils.NovaKeybindUtils;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
@@ -108,13 +109,7 @@ public class ConcreteWeb extends Module {
     }
 
     private void pressKey() {
-        int key = webAuraKey.get().getValue();
-        if (key == -1)
-            return;
-
-        long handle = mc.getWindow().getHandle();
-        mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_PRESS, 0);
-        mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_RELEASE, 0);
+        NovaKeybindUtils.pressBoundModules(webAuraKey.get(), 1);
     }
 
     private PlayerEntity findNearestTarget() {

@@ -472,7 +472,7 @@ public class AutoPearlStasis extends Module {
 
         if (joinCooldown > 0) {
             joinCooldown--;
-            lastPos = mc.player.getPos();
+            lastPos = mc.player.getEntityPos();
             return;
         }
         if (suppressThrowsTicks > 0)
@@ -535,7 +535,7 @@ public class AutoPearlStasis extends Module {
             if (teleportWindowTicks-- <= 0)
                 teleportPending = false;
             else {
-                Vec3d now = mc.player.getPos();
+                Vec3d now = mc.player.getEntityPos();
                 if (now.squaredDistanceTo(teleportOrigin) > (12 * 12) || Math.abs(now.y - teleportOrigin.y) > 4.0) {
                     teleportPending = false;
                     postTeleportDelayTicks = postTpDelay.get();
@@ -563,7 +563,7 @@ public class AutoPearlStasis extends Module {
         }
 
         if (mc.player != null)
-            lastPos = mc.player.getPos();
+            lastPos = mc.player.getEntityPos();
     }
 
     // === Stainless-styled proximity logic ===
@@ -618,7 +618,7 @@ public class AutoPearlStasis extends Module {
             if (d2 > r2)
                 continue;
 
-            String name = p.getGameProfile().getName();
+            String name = p.getGameProfile().name();
             if (name == null)
                 continue;
 
@@ -729,7 +729,7 @@ public class AutoPearlStasis extends Module {
 
     private void markTeleportPending() {
         teleportPending = true;
-        teleportOrigin = mc.player.getPos();
+        teleportOrigin = mc.player.getEntityPos();
         teleportWindowTicks = 200;
         if (assistState != AssistState.IDLE)
             resetAssist();
@@ -839,7 +839,7 @@ public class AutoPearlStasis extends Module {
                     if (!detectAnyPearlInWater(m))
                         continue;
 
-                    double d = mc.player.getPos().squaredDistanceTo(Vec3d.ofCenter(m));
+                    double d = mc.player.getEntityPos().squaredDistanceTo(Vec3d.ofCenter(m));
                     if (d < bestDist) {
                         bestDist = d;
                         bestTrapdoor = trap.toImmutable();
@@ -892,7 +892,7 @@ public class AutoPearlStasis extends Module {
         stuckTicks = 0;
         escapeBoostTicks = 0;
         surfacingTicks = 0;
-        lastPos = mc.player != null ? mc.player.getPos() : null;
+        lastPos = mc.player != null ? mc.player.getEntityPos() : null;
         stasisWater = null;
         standBlock = null;
         standEdgePos = null;
@@ -1177,7 +1177,7 @@ public class AutoPearlStasis extends Module {
 
         maintainMovementKeys();
         if (mc.player != null)
-            lastPos = mc.player.getPos();
+            lastPos = mc.player.getEntityPos();
     }
 
     // ==== Silent-swap & inventory handling ====
@@ -1384,7 +1384,7 @@ public class AutoPearlStasis extends Module {
         if (!advancedWaterEscape.get() || standEdgePos == null || mc.player == null)
             return;
 
-        Vec3d p = mc.player.getPos();
+        Vec3d p = mc.player.getEntityPos();
         double dx = p.x - standEdgePos.x, dz = p.z - standEdgePos.z;
         double dist = Math.sqrt(dx * dx + dz * dz);
 
@@ -1430,7 +1430,7 @@ public class AutoPearlStasis extends Module {
     private void strongWaterEscapeBoost() {
         if (mc == null || mc.player == null)
             return;
-        Vec3d target = (standEdgePos != null) ? standEdgePos : mc.player.getPos().add(0, 0, 1);
+        Vec3d target = (standEdgePos != null) ? standEdgePos : mc.player.getEntityPos().add(0, 0, 1);
         faceTowardXZ(target);
         try {
             mc.player.jump();
@@ -1450,7 +1450,7 @@ public class AutoPearlStasis extends Module {
     }
 
     private boolean isNearExact(Vec3d target, double dist) {
-        Vec3d p = mc.player.getPos();
+        Vec3d p = mc.player.getEntityPos();
         double dx = p.x - target.x, dz = p.z - target.z;
         double distance = Math.sqrt(dx * dx + dz * dz);
         return distance <= dist;
@@ -1464,7 +1464,7 @@ public class AutoPearlStasis extends Module {
         if (stasisWater == null || mc.player == null || mc.world == null)
             return;
 
-        Vec3d playerPos = mc.player.getPos();
+        Vec3d playerPos = mc.player.getEntityPos();
         Vec3d waterCenter = Vec3d.ofCenter(stasisWater);
 
         Vec3d awayXZ = new Vec3d(playerPos.x - waterCenter.x, 0, playerPos.z - waterCenter.z);
@@ -1549,7 +1549,7 @@ public class AutoPearlStasis extends Module {
     private boolean hasReachedStepBackTarget() {
         if (stepBackTarget == null || mc.player == null)
             return true;
-        Vec3d currentPos = mc.player.getPos();
+        Vec3d currentPos = mc.player.getEntityPos();
         double dx = currentPos.x - stepBackTarget.x;
         double dz = currentPos.z - stepBackTarget.z;
         return (dx * dx + dz * dz) <= 0.49;
@@ -1617,7 +1617,7 @@ public class AutoPearlStasis extends Module {
     private void walkTowardExact(Vec3d target) {
         if (mc.player == null || target == null)
             return;
-        Vec3d pos = mc.player.getPos();
+        Vec3d pos = mc.player.getEntityPos();
         Vec3d flatDelta = new Vec3d(target.x - pos.x, 0, target.z - pos.z);
         if (flatDelta.lengthSquared() < 1e-5)
             return;
@@ -1669,7 +1669,7 @@ public class AutoPearlStasis extends Module {
                             continue;
 
                         Vec3d edgePoint = adjCenter.add(toWater.normalize().multiply(0.45));
-                        double dist = mc.player.getPos().squaredDistanceTo(edgePoint);
+                        double dist = mc.player.getEntityPos().squaredDistanceTo(edgePoint);
                         if (dist < bestDist) {
                             bestDist = dist;
                             bestWater = m.toImmutable();
@@ -1701,7 +1701,7 @@ public class AutoPearlStasis extends Module {
     private void faceTowardXZ(Vec3d target) {
         if (mc.player == null || target == null)
             return;
-        Vec3d playerPos = mc.player.getPos();
+        Vec3d playerPos = mc.player.getEntityPos();
         Vec3d flatDelta = new Vec3d(target.x - playerPos.x, 0, target.z - playerPos.z);
         if (flatDelta.lengthSquared() < 1e-6)
             return;

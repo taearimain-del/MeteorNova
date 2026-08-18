@@ -7,7 +7,7 @@ import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
-import meteordevelopment.meteorclient.events.meteor.MouseButtonEvent;
+import meteordevelopment.meteorclient.events.meteor.MouseClickEvent;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,8 +31,8 @@ public class MiddleClickFriend extends Module {
     }
 
     @EventHandler
-    private void onMouseButton(MouseButtonEvent event) {
-        if (event.action == KeyAction.Press && event.button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE
+    private void onMouseButton(MouseClickEvent event) {
+        if (event.action == KeyAction.Press && event.button() == GLFW.GLFW_MOUSE_BUTTON_MIDDLE
                 && mc.currentScreen == null) {
             Entity target = mc.targetedEntity;
 

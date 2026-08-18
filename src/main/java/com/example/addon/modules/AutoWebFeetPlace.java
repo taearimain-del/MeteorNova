@@ -2,6 +2,7 @@ package com.example.addon.modules;
 
 import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
+import com.example.addon.utils.NovaKeybindUtils;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
@@ -279,14 +280,7 @@ public class AutoWebFeetPlace extends Module {
 
     private void placeAt(BlockPos pos, FindItemResult fir) {
         // Reset SpeedMine Logic
-        int key = resetKey.get().getValue();
-        if (key != -1) {
-            long handle = mc.getWindow().getHandle();
-            mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_PRESS, 0);
-            mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_RELEASE, 0);
-            mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_PRESS, 0);
-            mc.keyboard.onKey(handle, key, 0, GLFW.GLFW_RELEASE, 0);
-        }
+        NovaKeybindUtils.pressBoundModules(resetKey.get(), 2);
 
         if (rotate.get()) {
             Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos), 5,
