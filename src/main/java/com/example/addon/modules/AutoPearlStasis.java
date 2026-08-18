@@ -15,6 +15,7 @@ import meteordevelopment.meteorclient.mixininterface.IChatHud;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.TrapdoorBlock;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
@@ -1300,8 +1301,9 @@ public class AutoPearlStasis extends Module {
     }
 
     private int findMainInvPearlStackSlot() {
-        int size = mc.player.getInventory().size();
-        for (int i = 9; i < size; i++) {
+        // Stay inside the main inventory: past MAIN_SIZE are the equipment
+        // slots, and moving a pearl into the offhand would clear the totem.
+        for (int i = 9; i < PlayerInventory.MAIN_SIZE; i++) {
             ItemStack s = mc.player.getInventory().getStack(i);
             if (s.getItem() == Items.ENDER_PEARL && s.getCount() < Math.min(s.getMaxCount(), 16))
                 return i;
@@ -1310,8 +1312,7 @@ public class AutoPearlStasis extends Module {
     }
 
     private int findFirstEmptyMainSlot() {
-        int size = mc.player.getInventory().size();
-        for (int i = 9; i < size; i++) {
+        for (int i = 9; i < PlayerInventory.MAIN_SIZE; i++) {
             if (mc.player.getInventory().getStack(i).isEmpty())
                 return i;
         }
@@ -1329,31 +1330,12 @@ public class AutoPearlStasis extends Module {
     }
 
     private boolean pearlOnCooldown() {
-        try {
-            Object icm = mc.player.getItemCooldownManager();
-            try {
-                Method isCD = icm.getClass().getMethod("isCoolingDown", net.minecraft.item.Item.class);
-                Object r = isCD.invoke(icm, Items.ENDER_PEARL);
-                return r instanceof Boolean && (Boolean) r;
-            } catch (NoSuchMethodException ignore) {
-            }
-            try {
-                Method gcp = icm.getClass().getMethod("getCooldownProgress", net.minecraft.item.Item.class,
-                        float.class);
-                Object r = gcp.invoke(icm, Items.ENDER_PEARL, 0f);
-                return r instanceof Float && ((Float) r) > 0f;
-            } catch (NoSuchMethodException ignore) {
-            }
-            try {
-                Method gcp2 = icm.getClass().getMethod("getCooldownProgress", net.minecraft.item.ItemStack.class,
-                        float.class);
-                Object r = gcp2.invoke(icm, new ItemStack(Items.ENDER_PEARL), 0f);
-                return r instanceof Float && ((Float) r) > 0f;
-            } catch (NoSuchMethodException ignore) {
-            }
-        } catch (Throwable ignored) {
-        }
-        return false;
+        if (mc.player == null)
+            return false;
+        // Reflection by method name cannot work here: the names are remapped to
+        // intermediary in a production jar, so every lookup missed and this
+        // always reported "not on cooldown".
+        return mc.player.getItemCooldownManager().isCoolingDown(new ItemStack(Items.ENDER_PEARL));
     }
 
     private Vec3d snapPointOnEdge(Vec3d edge) {
@@ -1771,7 +1753,9 @@ public class AutoPearlStasis extends Module {
         if (mc.player == null)
             return 0;
         int count = 0;
-        for (int i = 0; i < mc.player.getInventory().size(); i++) {
+        // Stop at MAIN_SIZE: getInventory().size() also covers the equipment
+        // slots, and the offhand among them would be counted twice.
+        for (int i = 0; i < PlayerInventory.MAIN_SIZE; i++) {
             if (mc.player.getInventory().getStack(i).isOf(Items.TOTEM_OF_UNDYING))
                 count += mc.player.getInventory().getStack(i).getCount();
         }

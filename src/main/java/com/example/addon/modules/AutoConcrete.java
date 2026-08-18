@@ -164,6 +164,9 @@ public class AutoConcrete extends Module {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+        if (mc.player == null || mc.world == null)
+            return;
+
         // 1. Process Queue (Always runs first)
         if (!trapQueue.isEmpty()) {
             FindItemResult queueObsidian = InvUtils

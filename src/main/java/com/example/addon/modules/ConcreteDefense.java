@@ -106,6 +106,9 @@ public class ConcreteDefense extends Module {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+        if (mc.player == null || mc.world == null)
+            return;
+
         if (waitingToReturn) {
             if (--returnTimer <= 0) {
                 int hotbarSlot = hotbarSlotSetting.get() - 1;

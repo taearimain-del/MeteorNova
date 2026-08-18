@@ -191,6 +191,9 @@ public class AutoMinePlus extends Module {
 
     @EventHandler
     public void onTick(TickEvent.Post event) {
+        if (mc.player == null || mc.world == null)
+            return;
+
         minedThisTick = false; // reset per tick
 
         // chat cooldown tick

@@ -13,6 +13,7 @@ import meteordevelopment.meteorclient.mixininterface.IChatHud;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -786,7 +787,9 @@ public class AutoPearlThrow extends Module {
         if (mc.player == null)
             return 0;
         int count = 0;
-        for (int i = 0; i < mc.player.getInventory().size(); i++) {
+        // Stop at MAIN_SIZE: getInventory().size() also covers the equipment
+        // slots, and the offhand among them would be counted twice.
+        for (int i = 0; i < PlayerInventory.MAIN_SIZE; i++) {
             if (mc.player.getInventory().getStack(i).isOf(Items.TOTEM_OF_UNDYING))
                 count += mc.player.getInventory().getStack(i).getCount();
         }
