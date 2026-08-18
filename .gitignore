@@ -3,6 +3,9 @@
 build/
 out/
 
+# Loom dev client/server working directory
+run/
+
 # IDE
 .idea/
 *.iml
