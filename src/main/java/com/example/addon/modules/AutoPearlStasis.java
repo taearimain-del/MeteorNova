@@ -5,6 +5,7 @@ import com.example.addon.utils.NovaChatUtils;
 import meteordevelopment.meteorclient.events.game.GameJoinedEvent;
 import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.pathing.PathManagers;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
@@ -20,7 +21,6 @@ import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -31,7 +31,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.screen.ScreenTexts;
 import org.lwjgl.glfw.GLFW;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class AutoPearlStasis extends Module {
@@ -366,6 +365,9 @@ public class AutoPearlStasis extends Module {
 
     private int holdForward = 0, holdSprint = 0, holdJump = 0;
 
+    private static final int IDLE_SCAN_INTERVAL = 20;
+    private int idleScanTicks = 0;
+
     // Inventory temp state
     private boolean usingOffhand = false;
     private boolean didSilentSwap = false;
@@ -548,8 +550,11 @@ public class AutoPearlStasis extends Module {
         if (postTeleportDelayTicks >= 0 && --postTeleportDelayTicks == 0)
             triggerAssist();
 
-        // Optional: auto-start if stasis is already nearby
-        if (assistState == AssistState.IDLE && autoApproach.get() && autoStartNear.get()) {
+        // Optional: auto-start if stasis is already nearby. Scanning is a few
+        // thousand block lookups, so only do it a few times a second.
+        if (assistState == AssistState.IDLE && autoApproach.get() && autoStartNear.get()
+                && --idleScanTicks <= 0) {
+            idleScanTicks = IDLE_SCAN_INTERVAL;
             if (findStasisAndEdge()) {
                 stasisPearlCountBefore = countPearlsInStasis();
                 startPathTo(standBlock);
@@ -856,11 +861,13 @@ public class AutoPearlStasis extends Module {
     }
 
     private void interactTrapdoor(BlockPos trapdoorPos) {
-        if (mc.getNetworkHandler() == null)
+        if (mc.player == null || mc.interactionManager == null)
             return;
+        // Sending the packet by hand meant a hardcoded sequence of 0, which the
+        // server acknowledges against the wrong action and rolls back.
         Vec3d hit = Vec3d.ofCenter(trapdoorPos);
-        mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND,
-                new BlockHitResult(hit, Direction.UP, trapdoorPos, false), 0));
+        mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND,
+                new BlockHitResult(hit, Direction.UP, trapdoorPos, false));
     }
 
     private void ensureTrapdoorOpen(BlockPos trapdoorPos) {
@@ -1560,40 +1567,20 @@ public class AutoPearlStasis extends Module {
         return pearls.size();
     }
 
+    // Meteor's path manager wraps Baritone when it is installed and is a no-op
+    // otherwise. Reaching into Baritone's own classes by reflection went
+    // through its internal implementation types, so the calls threw and were
+    // swallowed - pathing simply never happened, without a word.
     private void startPathTo(BlockPos targetBlock) {
         if (!useBaritone.get())
             return;
-        try {
-            Class<?> api = Class.forName("baritone.api.BaritoneAPI");
-            Object provider = api.getMethod("getProvider").invoke(null);
-            Object baritone = provider.getClass().getMethod("getPrimaryBaritone").invoke(provider);
-            Object goalBlock = Class.forName("baritone.api.pathing.goals.GoalBlock")
-                    .getConstructor(int.class, int.class, int.class)
-                    .newInstance(targetBlock.getX(), targetBlock.getY(), targetBlock.getZ());
-            Object cgp = baritone.getClass().getMethod("getCustomGoalProcess").invoke(baritone);
-            cgp.getClass().getMethod("setGoalAndPath", Class.forName("baritone.api.pathing.goals.Goal"))
-                    .invoke(cgp, goalBlock);
-        } catch (Throwable t) {
-            // Fallback: manual walking handles movement
-        }
+        PathManagers.get().moveTo(targetBlock, true);
     }
 
     private void stopPath() {
         if (!useBaritone.get())
             return;
-        try {
-            Class<?> api = Class.forName("baritone.api.BaritoneAPI");
-            Object provider = api.getMethod("getProvider").invoke(null);
-            Object baritone = provider.getClass().getMethod("getPrimaryBaritone").invoke(provider);
-            Object cgp = baritone.getClass().getMethod("getCustomGoalProcess").invoke(baritone);
-            try {
-                cgp.getClass().getMethod("setGoal", Class.forName("baritone.api.pathing.goals.Goal"))
-                        .invoke(cgp, new Object[] { null });
-            } catch (NoSuchMethodException ignored) {
-            }
-            cgp.getClass().getMethod("cancel").invoke(cgp);
-        } catch (Throwable ignored) {
-        }
+        PathManagers.get().stop();
     }
 
     private void walkTowardExact(Vec3d target) {
@@ -1742,9 +1729,15 @@ public class AutoPearlStasis extends Module {
     }
 
     private int parseKey(String key) {
+        if (key == null || key.isBlank())
+            return GLFW.GLFW_KEY_UNKNOWN;
+
+        // Accept what people actually type: "left shift", " g ", "F4".
+        String name = key.trim().replace(' ', '_').replace('-', '_').toUpperCase(Locale.ROOT);
         try {
-            return GLFW.class.getField("GLFW_KEY_" + key.toUpperCase(Locale.ROOT)).getInt(null);
-        } catch (Throwable ignored) {
+            return GLFW.class.getField("GLFW_KEY_" + name).getInt(null);
+        } catch (ReflectiveOperationException ignored) {
+            warning("Unknown key '%s' - expected a GLFW key name such as G, F4 or LEFT_SHIFT.", key);
             return GLFW.GLFW_KEY_UNKNOWN;
         }
     }
