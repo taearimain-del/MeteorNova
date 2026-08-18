@@ -28,7 +28,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.Direction;
-import net.minecraft.screen.ScreenTexts;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;

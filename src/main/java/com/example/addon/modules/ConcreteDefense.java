@@ -58,10 +58,11 @@ public class ConcreteDefense extends Module {
 
     private final Setting<Integer> hotbarSlotSetting = sgGeneral.add(new IntSetting.Builder()
             .name("hotbar-slot")
-            .description("Which hotbar slot to use for swapping.")
-            .defaultValue(1)
-            .min(1)
-            .sliderMax(9)
+            .description("Which hotbar slot (0-8) to use for swapping.")
+            .defaultValue(0)
+            .min(0)
+            .max(8)
+            .sliderMax(8)
             .build());
 
     private final Setting<Integer> returnDelay = sgGeneral.add(new IntSetting.Builder()
@@ -101,7 +102,7 @@ public class ConcreteDefense extends Module {
     public void onDeactivate() {
         NovaChatUtils.sendToggleMsg("ConcreteDefense", false);
         if (waitingToReturn && originalSlot != -1) {
-            int hotbarSlot = hotbarSlotSetting.get() - 1;
+            int hotbarSlot = hotbarSlotSetting.get();
             InvUtils.move().from(hotbarSlot).to(originalSlot);
         }
     }
@@ -113,7 +114,7 @@ public class ConcreteDefense extends Module {
 
         if (waitingToReturn) {
             if (--returnTimer <= 0) {
-                int hotbarSlot = hotbarSlotSetting.get() - 1;
+                int hotbarSlot = hotbarSlotSetting.get();
                 InvUtils.move().from(hotbarSlot).to(originalSlot);
                 waitingToReturn = false;
             }
@@ -150,7 +151,7 @@ public class ConcreteDefense extends Module {
         if (!itemResult.found() && silentSwap.get()) {
             FindItemResult invItem = InvUtils.find(itemPredicate);
             if (invItem.found() && invItem.slot() >= 9) {
-                int hotbarSlot = hotbarSlotSetting.get() - 1;
+                int hotbarSlot = hotbarSlotSetting.get();
                 originalSlot = invItem.slot();
 
                 InvUtils.move().from(invItem.slot()).to(hotbarSlot);

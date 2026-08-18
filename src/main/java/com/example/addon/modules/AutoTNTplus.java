@@ -20,7 +20,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FireChargeItem;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.screen.ScreenTexts;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;

@@ -4,6 +4,7 @@ import com.example.addon.Addon;
 import com.example.addon.utils.NovaChatUtils;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.StringListSetting;
+import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.friends.Friends;
@@ -14,6 +15,8 @@ import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
 import net.minecraft.text.Text;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AutoAccept extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -43,6 +46,24 @@ public class AutoAccept extends Module {
             .visible(() -> mode.get() == Mode.Blacklist)
             .build());
 
+    private final Setting<String> acceptCommand = sgGeneral.add(new StringSetting.Builder()
+            .name("accept-command")
+            .description("Command to accept with. The requester's name is appended.")
+            .defaultValue("/tpy")
+            .build());
+
+    // The requester's name has to lead the line - optionally behind bracketed
+    // server prefixes - so that a player simply saying "<someone> Steve has
+    // requested to teleport" in chat cannot trigger an accept.
+    private static final Pattern LEADING_NAME =
+            Pattern.compile("^(?:\\[[^\\]]*\\]\\s*)*([A-Za-z0-9_]{3,16})\\b");
+
+    private static final String[] REQUEST_PHRASES = {
+            "has requested to teleport",
+            "to teleport to you",
+            "has invited you to join them"
+    };
+
     public AutoAccept() {
         super(Addon.CATEGORY, "auto-accept", "Automatically accepts teleport requests.");
     }
@@ -62,17 +83,16 @@ public class AutoAccept extends Module {
         Text message = event.getMessage();
         String text = message.getString();
 
-        if (text.contains("has requested to teleport") || text.contains("to teleport to you")
-                || text.contains("has invited you to join them")) {
-            String playerName = extractPlayerName(text);
+        String playerName = extractPlayerName(text);
+        if (playerName == null || !shouldAccept(playerName))
+            return;
 
-            if (playerName != null) {
-                if (shouldAccept(playerName)) {
-                    info("Accepting teleport request from " + playerName);
-                    ChatUtils.sendPlayerMsg("/tpy " + playerName);
-                }
-            }
-        }
+        String command = acceptCommand.get().trim();
+        if (command.isEmpty())
+            return;
+
+        info("Accepting teleport request from " + playerName);
+        ChatUtils.sendPlayerMsg(command + " " + playerName);
     }
 
     private boolean shouldAccept(String playerName) {
@@ -102,10 +122,17 @@ public class AutoAccept extends Module {
         }
     }
 
+    /** Returns the requester's name, or null if this is not a request line. */
     private String extractPlayerName(String text) {
-        String[] parts = text.split(" ");
-        if (parts.length > 0) {
-            return parts[0];
+        Matcher matcher = LEADING_NAME.matcher(text);
+        if (!matcher.find())
+            return null;
+
+        // The phrase has to come after the name, not before it.
+        String rest = text.substring(matcher.end());
+        for (String phrase : REQUEST_PHRASES) {
+            if (rest.contains(phrase))
+                return matcher.group(1);
         }
         return null;
     }

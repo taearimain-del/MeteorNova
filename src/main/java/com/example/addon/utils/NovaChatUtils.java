@@ -9,7 +9,7 @@ public class NovaChatUtils {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public static void sendToggleMsg(String moduleName, boolean on) {
-        if (mc.inGameHud == null)
+        if (mc.inGameHud == null || mc.inGameHud.getChatHud() == null)
             return;
 
         MutableText text = Text.literal("[Nova] ").formatted(Formatting.LIGHT_PURPLE);
@@ -24,7 +24,7 @@ public class NovaChatUtils {
     }
 
     public static void sendInfoMsg(String moduleName, String message) {
-        if (mc.inGameHud == null)
+        if (mc.inGameHud == null || mc.inGameHud.getChatHud() == null)
             return;
 
         MutableText text = Text.literal("[Nova] ").formatted(Formatting.LIGHT_PURPLE);
