@@ -30,13 +30,13 @@ public class AntiPhase extends Module {
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
             .name("range")
             .description("Range to detect enemies.")
-            .defaultValue(4.5).min(0.0).max(6.0).sliderRange(0.0, 6.0)
+            .defaultValue(4.5).min(0.0).max(5.0).sliderRange(0.0, 5.0)
             .build());
 
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
             .name("delay")
-            .description("Delay between placements in milliseconds.")
-            .defaultValue(50).min(0).max(1000).sliderMax(1000)
+            .description("Delay between placements in milliseconds. Each placement costs several packets.")
+            .defaultValue(100).min(0).max(1000).sliderMax(1000)
             .build());
 
     private final Setting<Integer> bpt = sgGeneral.add(new IntSetting.Builder()
@@ -63,9 +63,9 @@ public class AntiPhase extends Module {
             .defaultValue(false)
             .build());
 
-    private final Setting<Boolean> silentSwap = sgGeneral.add(new BoolSetting.Builder()
-            .name("silent-swap")
-            .description("Swap back to your original slot after placing.")
+    private final Setting<Boolean> swapBack = sgGeneral.add(new BoolSetting.Builder()
+            .name("swap-back")
+            .description("Return to your original hotbar slot after placing.")
             .defaultValue(true)
             .build());
 
@@ -149,7 +149,7 @@ public class AntiPhase extends Module {
 
             // No entity check: the whole point is to place where an enemy
             // stands, and only collision-less blocks can go there at all.
-            if (BlockUtils.place(pos, item, rotate.get(), 50, true, false, silentSwap.get())) {
+            if (BlockUtils.place(pos, item, rotate.get(), 50, true, false, swapBack.get())) {
                 placed++;
                 lastPlaceAt = now;
             }
