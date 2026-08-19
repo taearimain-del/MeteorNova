@@ -10,6 +10,8 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -139,10 +141,15 @@ public class AntiPhase extends Module {
 
             if (onlyInHole.get() && !isSurrounded(pos))
                 continue;
-            if (!BlockUtils.canPlace(pos))
+            // Only that the block is replaceable: BlockUtils.canPlace asks
+            // whether obsidian would fit, which an enemy standing in the way
+            // always denies, and place() rechecks with the real block anyway.
+            if (!mc.world.getBlockState(pos).isReplaceable())
                 continue;
 
-            if (BlockUtils.place(pos, item, rotate.get(), 50, true, true, silentSwap.get())) {
+            // No entity check: the whole point is to place where an enemy
+            // stands, and only collision-less blocks can go there at all.
+            if (BlockUtils.place(pos, item, rotate.get(), 50, true, false, silentSwap.get())) {
                 placed++;
                 lastPlaceAt = now;
             }
@@ -159,10 +166,11 @@ public class AntiPhase extends Module {
         return webs.get() && stack.isOf(Items.COBWEB);
     }
 
-    /** True when all four horizontal neighbours are non-replaceable. */
+    /** True when all four horizontal neighbours are blast-resistant surround blocks. */
     private boolean isSurrounded(BlockPos pos) {
         for (Direction dir : Direction.Type.HORIZONTAL) {
-            if (mc.world.getBlockState(pos.offset(dir)).isReplaceable())
+            Block block = mc.world.getBlockState(pos.offset(dir)).getBlock();
+            if (block != Blocks.OBSIDIAN && block != Blocks.BEDROCK && block != Blocks.ENDER_CHEST)
                 return false;
         }
         return true;
