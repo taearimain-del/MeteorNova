@@ -30,6 +30,7 @@ public class Addon extends MeteorAddon {
         Modules.get().add(new AutoTNTplus());
         Modules.get().add(new TrapMiner());
         Modules.get().add(new ConcreteDefense());
+        Modules.get().add(new AntiPhase());
         Modules.get().add(new NoRenderPlus());
         Modules.get().add(new BlockESPPlus());
 
